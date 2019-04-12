@@ -40,7 +40,52 @@ type Plan struct {
 }
 
 type PlanVariables struct {
+	Expand      string `json:"expand"`
+	ProjectKey  string `json:"projectKey"`
+	ProjectName string `json:"projectName"`
+	Project     struct {
+		Key         string `json:"key"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Link        struct {
+			Href string `json:"href"`
+			Rel  string `json:"rel"`
+		} `json:"link"`
+	} `json:"project"`
+	ShortName string `json:"shortName"`
+	BuildName string `json:"buildName"`
+	ShortKey  string `json:"shortKey"`
+	Type      string `json:"type"`
+	Enabled   bool   `json:"enabled"`
+	Link      struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
+	IsFavourite               bool    `json:"isFavourite"`
+	IsActive                  bool    `json:"isActive"`
+	IsBuilding                bool    `json:"isBuilding"`
+	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds"`
+	Actions                   struct {
+		Size       int `json:"size"`
+		StartIndex int `json:"start-index"`
+		MaxResult  int `json:"max-result"`
+	} `json:"actions"`
+	Stages struct {
+		Size       int `json:"size"`
+		StartIndex int `json:"start-index"`
+		MaxResult  int `json:"max-result"`
+	} `json:"stages"`
+	Branches struct {
+		Size       int `json:"size"`
+		StartIndex int `json:"start-index"`
+		MaxResult  int `json:"max-result"`
+	} `json:"branches"`
 	Variables VariableContext `json:"variableContext"`
+	PlanKey struct {
+		Key string `json:"key"`
+	} `json:"planKey"`
+	Key     string `json:"key"`
+	Name    string `json:"name"`
 }
 
 // PlanKey holds the plan-key for a plan
