@@ -189,13 +189,28 @@ func (p *PlanService) DisablePlan(planKey string) (*http.Response, error) {
 	return response, nil
 }
 
-// Run plan
-func (p *PlanService) RunPlan(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
-	var varsString = ""
-	for varName, varValue := range variables{
-		varsString += fmt.Sprintf("&%s=%s", varName, varValue)
+// Run plan without variables
+func (p *PlanService) RunPlan(projectKey, planKey string) (*http.Response, error) {
+	return p.runPlan(projectKey, planKey, nil)
+}
+
+// Run plan with variables
+func (p *PlanService) RunPlanCustomized(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
+	return p.runPlan(projectKey, planKey, variables)
+}
+
+// internal method for build plan running, avoid duplicate
+func (p *PlanService) runPlan(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
+	var u = ""
+	if variables != nil {
+		var varsString= ""
+		for varName, varValue := range variables {
+			varsString += fmt.Sprintf("&bamboo.variable.%s=%s", varName, varValue)
+		}
+		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages&%s", projectKey, planKey, varsString)
+	} else {
+		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages", projectKey, planKey)
 	}
-	u := fmt.Sprintf("queue/%s-%s?stage&executeAllStages&%s", projectKey, planKey, varsString)
 	request, err := p.client.NewRequest(http.MethodPost, u, nil)
 	if err != nil {
 		return nil, err
