@@ -39,7 +39,7 @@ type Plan struct {
 	PlanKey   *PlanKey `json:"planKey,omitempty"`
 }
 
-type PlanVariables struct {
+type PlanInfo struct {
 	Expand      string `json:"expand"`
 	ProjectKey  string `json:"projectKey"`
 	ProjectName string `json:"projectName"`
@@ -95,18 +95,18 @@ type PlanKey struct {
 
 //http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
 
-func (p *PlanService) PlanVariables(planKey string) (PlanVariables, *http.Response, error) {
+func (p *PlanService) PlanVariables(planKey string) (VariableContext, *http.Response, error) {
 	u := fmt.Sprintf("plan/%s%s", planKey, variablesListURL())
 	request, err := p.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
-		return PlanVariables{}, nil, err
+		return VariableContext{}, nil, err
 	}
-	planVars := PlanVariables{}
+	planVars := PlanInfo{}
 	response, err := p.client.Do(request, planVars)
 	if err != nil {
-		return planVars, response, err
+		return planVars.Variables, response, err
 	}
-	return planVars, response, nil
+	return planVars.Variables, response, nil
 }
 
 // CreatePlanBranch will create a plan branch with the given branch name for the specified build
