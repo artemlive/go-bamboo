@@ -102,7 +102,7 @@ func (p *PlanService) PlanVariables(planKey string) (VariableContext, *http.Resp
 		return VariableContext{}, nil, err
 	}
 	planVars := PlanInfo{}
-	response, err := p.client.Do(request, planVars)
+	response, err := p.client.Do(request, &planVars)
 	if err != nil {
 		return planVars.Variables, response, err
 	}
