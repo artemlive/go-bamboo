@@ -190,8 +190,12 @@ func (p *PlanService) DisablePlan(planKey string) (*http.Response, error) {
 }
 
 // Run plan
-func (p *PlanService) RunPlan(projectKey, planKey string) (*http.Response, error) {
-	u := fmt.Sprintf("queue/%s-%s?stage&executeAllStages", projectKey, planKey)
+func (p *PlanService) RunPlan(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
+	var varsString = ""
+	for varName, varValue := range variables{
+		varsString += fmt.Sprintf("&%s=%s", varName, varValue)
+	}
+	u := fmt.Sprintf("queue/%s-%s?stage&executeAllStages&%s", projectKey, planKey, varsString)
 	request, err := p.client.NewRequest(http.MethodPost, u, nil)
 	if err != nil {
 		return nil, err
