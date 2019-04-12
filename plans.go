@@ -188,3 +188,18 @@ func (p *PlanService) DisablePlan(planKey string) (*http.Response, error) {
 	}
 	return response, nil
 }
+
+// Run plan
+func (p *PlanService) RunPlan(projectKey, planKey string) (*http.Response, error) {
+	u := fmt.Sprintf("queue/%s-%s?stage&executeAllStages", projectKey, planKey)
+	request, err := p.client.NewRequest(http.MethodPost, u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := p.client.Do(request, nil)
+	if err != nil {
+		return response, err
+	}
+	return response, nil
+}
