@@ -39,7 +39,6 @@ type Plan struct {
 	PlanKey   *PlanKey `json:"planKey,omitempty"`
 }
 //Definition of response
-//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
 // if need to expand any information, move all data to separate structs, no need for now
 type PlanInfo struct {
 	Expand      string `json:"expand"`
@@ -95,7 +94,6 @@ type PlanKey struct {
 	Key string `json:"key,omitempty"`
 }
 
-//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
 
 func (p *PlanService) PlanVariables(planKey string) (VariableContext, *http.Response, error) {
 	u := fmt.Sprintf("plan/%s%s", planKey, variablesListURL())
