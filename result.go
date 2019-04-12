@@ -11,30 +11,45 @@ type ResultService service
 // Result represents all the information associated with a build result
 type Result struct {
 	ChangeSet              `json:"changes"`
-	ID                     int    `json:"id"`
-	PlanName               string `json:"planName"`
-	ProjectName            string `json:"projectName"`
-	BuildResultKey         string `json:"buildResultKey"`
-	LifeCycleState         string `json:"lifeCycleState"`
-	BuildStartedTime       string `json:"buildStartedTime"`
-	BuildCompletedTime     string `json:"buildCompletedTime"`
-	BuildDurationInSeconds int    `json:"buildDurationInSeconds"`
-	VcsRevisionKey         string `json:"vcsRevisionKey"`
-	BuildTestSummary       string `json:"buildTestSummary"`
-	SuccessfulTestCount    int    `json:"successfulTestCount"`
-	FailedTestCount        int    `json:"failedTestCount"`
-	QuarantinedTestCount   int    `json:"quarantinedTestCount"`
-	SkippedTestCount       int    `json:"skippedTestCount"`
-	Finished               bool   `json:"finished"`
-	Successful             bool   `json:"successful"`
-	BuildReason            string `json:"buildReason"`
-	ReasonSummary          string `json:"reasonSummary"`
-	Key                    string `json:"key"`
-	State                  string `json:"state"`
-	BuildState             string `json:"buildState"`
-	Number                 int    `json:"number"`
-	Variables              string `json:"variableContext"`
-	BuildNumber            int    `json:"buildNumber"`
+	ID                     int             `json:"id"`
+	PlanName               string          `json:"planName"`
+	ProjectName            string          `json:"projectName"`
+	BuildResultKey         string          `json:"buildResultKey"`
+	LifeCycleState         string          `json:"lifeCycleState"`
+	BuildStartedTime       string          `json:"buildStartedTime"`
+	BuildCompletedTime     string          `json:"buildCompletedTime"`
+	BuildDurationInSeconds int             `json:"buildDurationInSeconds"`
+	VcsRevisionKey         string          `json:"vcsRevisionKey"`
+	BuildTestSummary       string          `json:"buildTestSummary"`
+	SuccessfulTestCount    int             `json:"successfulTestCount"`
+	FailedTestCount        int             `json:"failedTestCount"`
+	QuarantinedTestCount   int             `json:"quarantinedTestCount"`
+	SkippedTestCount       int             `json:"skippedTestCount"`
+	Finished               bool            `json:"finished"`
+	Successful             bool            `json:"successful"`
+	BuildReason            string          `json:"buildReason"`
+	ReasonSummary          string          `json:"reasonSummary"`
+	Key                    string          `json:"key"`
+	State                  string          `json:"state"`
+	BuildState             string          `json:"buildState"`
+	Number                 int             `json:"number"`
+	Variables              VariableContext `json:"variableContext"`
+	BuildNumber            int             `json:"buildNumber"`
+}
+
+// represents variables list from api response
+type VariableContext struct {
+	Size       int        `json:"size"`
+	MaxResults int        `json:"max-results"`
+	StartIndex int        `json:"start-index"`
+	Variables  []Variable `json:"variable"`
+}
+
+type Variable struct {
+	Key          string `json:"key"`
+	Value        string `json:"value"`
+	VariableType string `json:"variableType"`
+	IsPassword   bool   `json:"isPassword"`
 }
 
 // ChangeSet represents a collection of type Change
