@@ -38,7 +38,9 @@ type Plan struct {
 	Name      string   `json:"name,omitempty"`
 	PlanKey   *PlanKey `json:"planKey,omitempty"`
 }
-
+//Definition of response
+//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
+// if need to expand any information, move all data to separate structs, no need for now
 type PlanInfo struct {
 	Expand      string `json:"expand"`
 	ProjectKey  string `json:"projectKey"`
