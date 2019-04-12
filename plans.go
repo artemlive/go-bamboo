@@ -38,10 +38,77 @@ type Plan struct {
 	Name      string   `json:"name,omitempty"`
 	PlanKey   *PlanKey `json:"planKey,omitempty"`
 }
+//Definition of response
+//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
+// if need to expand any information, move all data to separate structs, no need for now
+type PlanInfo struct {
+	Expand      string `json:"expand"`
+	ProjectKey  string `json:"projectKey"`
+	ProjectName string `json:"projectName"`
+	Project     struct {
+		Key         string `json:"key"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Link        struct {
+			Href string `json:"href"`
+			Rel  string `json:"rel"`
+		} `json:"link"`
+	} `json:"project"`
+	ShortName string `json:"shortName"`
+	BuildName string `json:"buildName"`
+	ShortKey  string `json:"shortKey"`
+	Type      string `json:"type"`
+	Enabled   bool   `json:"enabled"`
+	Link      struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
+	IsFavourite               bool    `json:"isFavourite"`
+	IsActive                  bool    `json:"isActive"`
+	IsBuilding                bool    `json:"isBuilding"`
+	AverageBuildTimeInSeconds float64 `json:"averageBuildTimeInSeconds"`
+	Actions                   struct {
+		Size       int `json:"size"`
+		StartIndex int `json:"start-index"`
+		MaxResult  int `json:"max-result"`
+	} `json:"actions"`
+	Stages struct {
+		Size       int `json:"size"`
+		StartIndex int `json:"start-index"`
+		MaxResult  int `json:"max-result"`
+	} `json:"stages"`
+	Branches struct {
+		Size       int `json:"size"`
+		StartIndex int `json:"start-index"`
+		MaxResult  int `json:"max-result"`
+	} `json:"branches"`
+	Variables VariableContext `json:"variableContext"`
+	PlanKey struct {
+		Key string `json:"key"`
+	} `json:"planKey"`
+	Key     string `json:"key"`
+	Name    string `json:"name"`
+}
 
 // PlanKey holds the plan-key for a plan
 type PlanKey struct {
 	Key string `json:"key,omitempty"`
+}
+
+//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
+
+func (p *PlanService) PlanVariables(planKey string) (VariableContext, *http.Response, error) {
+	u := fmt.Sprintf("plan/%s%s", planKey, variablesListURL())
+	request, err := p.client.NewRequest(http.MethodGet, u, nil)
+	if err != nil {
+		return VariableContext{}, nil, err
+	}
+	planVars := PlanInfo{}
+	response, err := p.client.Do(request, &planVars)
+	if err != nil {
+		return planVars.Variables, response, err
+	}
+	return planVars.Variables, response, nil
 }
 
 // CreatePlanBranch will create a plan branch with the given branch name for the specified build
@@ -178,6 +245,40 @@ func (p *PlanService) PlanNameMap() (map[string]string, *http.Response, error) {
 func (p *PlanService) DisablePlan(planKey string) (*http.Response, error) {
 	u := fmt.Sprintf("plan/%s/enable", planKey)
 	request, err := p.client.NewRequest(http.MethodDelete, u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := p.client.Do(request, nil)
+	if err != nil {
+		return response, err
+	}
+	return response, nil
+}
+
+// Run plan without variables
+func (p *PlanService) RunPlan(projectKey, planKey string) (*http.Response, error) {
+	return p.runPlan(projectKey, planKey, nil)
+}
+
+// Run plan with variables
+func (p *PlanService) RunPlanCustomized(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
+	return p.runPlan(projectKey, planKey, variables)
+}
+
+// internal method for build plan running, avoid duplicate
+func (p *PlanService) runPlan(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
+	var u = ""
+	if variables != nil {
+		var varsString = ""
+		for varName, varValue := range variables {
+			varsString += fmt.Sprintf("&bamboo.variable.%s=%s", varName, varValue)
+		}
+		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages&%s", projectKey, planKey, varsString)
+	} else {
+		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages", projectKey, planKey)
+	}
+	request, err := p.client.NewRequest(http.MethodPost, u, nil)
 	if err != nil {
 		return nil, err
 	}
