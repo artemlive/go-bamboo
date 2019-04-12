@@ -11,6 +11,11 @@ func numberedResultURL(key string) string {
 	return fmt.Sprintf(resultsBase+"/%s?expand=changes,metadata,plan,vcsRevisions,artifacts,comments,labels,stages,variableContext", key)
 }
 
+// get variables from plan URL
+func variablesListURL() string {
+	return fmt.Sprintf("?expand=variableContext")
+}
+
 // -- Permissions --
 const permissionBase = "permissions/%s"
 

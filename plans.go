@@ -39,9 +39,29 @@ type Plan struct {
 	PlanKey   *PlanKey `json:"planKey,omitempty"`
 }
 
+type PlanVariables struct {
+	Variables VariableContext `json:"variableContext"`
+}
+
 // PlanKey holds the plan-key for a plan
 type PlanKey struct {
 	Key string `json:"key,omitempty"`
+}
+
+//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
+
+func (p *PlanService) PlanVariables(planKey string) (PlanVariables, *http.Response, error) {
+	u := fmt.Sprintf("plan/%s%s", planKey, variablesListURL())
+	request, err := p.client.NewRequest(http.MethodPost, u, nil)
+	if err != nil {
+		return PlanVariables{}, nil, err
+	}
+	planVars := PlanVariables{}
+	response, err := p.client.Do(request, planVars)
+	if err != nil {
+		return planVars, response, err
+	}
+	return planVars, response, nil
 }
 
 // CreatePlanBranch will create a plan branch with the given branch name for the specified build
@@ -203,7 +223,7 @@ func (p *PlanService) RunPlanCustomized(projectKey, planKey string, variables ma
 func (p *PlanService) runPlan(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
 	var u = ""
 	if variables != nil {
-		var varsString= ""
+		var varsString = ""
 		for varName, varValue := range variables {
 			varsString += fmt.Sprintf("&bamboo.variable.%s=%s", varName, varValue)
 		}
