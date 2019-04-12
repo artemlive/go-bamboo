@@ -52,7 +52,7 @@ type PlanKey struct {
 
 func (p *PlanService) PlanVariables(planKey string) (PlanVariables, *http.Response, error) {
 	u := fmt.Sprintf("plan/%s%s", planKey, variablesListURL())
-	request, err := p.client.NewRequest(http.MethodPost, u, nil)
+	request, err := p.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return PlanVariables{}, nil, err
 	}
