@@ -33,6 +33,7 @@ type Result struct {
 	State                  string `json:"state"`
 	BuildState             string `json:"buildState"`
 	Number                 int    `json:"number"`
+	Variables              string `json:"variables"`
 	BuildNumber            int    `json:"buildNumber"`
 }
 
