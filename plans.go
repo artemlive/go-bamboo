@@ -271,7 +271,7 @@ func (p *PlanService) RunPlan(planKey string) (*RunPlanResponse, *http.Response,
 }
 
 // Run plan with variables
-func (p *PlanService) RunPlanCustomized(projectKey, planKey string, variables map[string]string) (*RunPlanResponse, *http.Response, error) {
+func (p *PlanService) RunPlanCustomized(planKey string, variables map[string]string) (*RunPlanResponse, *http.Response, error) {
 	return p.runPlan(planKey, variables)
 }
 
