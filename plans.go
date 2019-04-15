@@ -272,9 +272,9 @@ func (p *PlanService) runPlan(planKey string, variables map[string]string) (*htt
 		for varName, varValue := range variables {
 			varsString += fmt.Sprintf("&bamboo.variable.%s=%s", varName, varValue)
 		}
-		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages&%s", planKey, varsString)
+		u = fmt.Sprintf("queue/%s?stage&executeAllStages&%s", planKey, varsString)
 	} else {
-		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages", planKey)
+		u = fmt.Sprintf("queue/%s?stage&executeAllStages", planKey)
 	}
 	request, err := p.client.NewRequest(http.MethodPost, u, nil)
 	if err != nil {
