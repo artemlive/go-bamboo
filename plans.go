@@ -89,6 +89,17 @@ type PlanInfo struct {
 	Name    string `json:"name"`
 }
 
+type RunPlanResponse struct {
+	PlanKey        string `json:"planKey"`
+	BuildNumber    int    `json:"buildNumber"`
+	BuildResultKey string `json:"buildResultKey"`
+	TriggerReason  string `json:"triggerReason"`
+	Link           struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
+}
+
 // PlanKey holds the plan-key for a plan
 type PlanKey struct {
 	Key string `json:"key,omitempty"`
@@ -255,17 +266,17 @@ func (p *PlanService) DisablePlan(planKey string) (*http.Response, error) {
 }
 
 // Run plan without variables
-func (p *PlanService) RunPlan(planKey string) (*http.Response, error) {
+func (p *PlanService) RunPlan(planKey string) (*RunPlanResponse, *http.Response, error) {
 	return p.runPlan(planKey, nil)
 }
 
 // Run plan with variables
-func (p *PlanService) RunPlanCustomized(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
+func (p *PlanService) RunPlanCustomized(projectKey, planKey string, variables map[string]string) (*RunPlanResponse, *http.Response, error) {
 	return p.runPlan(planKey, variables)
 }
 
 // internal method for build plan running, avoid duplicate
-func (p *PlanService) runPlan(planKey string, variables map[string]string) (*http.Response, error) {
+func (p *PlanService) runPlan(planKey string, variables map[string]string) (*RunPlanResponse, *http.Response, error) {
 	var u = ""
 	if variables != nil {
 		var varsString = ""
@@ -278,12 +289,12 @@ func (p *PlanService) runPlan(planKey string, variables map[string]string) (*htt
 	}
 	request, err := p.client.NewRequest(http.MethodPost, u, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
-	response, err := p.client.Do(request, nil)
+	runPlanResp := RunPlanResponse{}
+	response, err := p.client.Do(request, &runPlanResp)
 	if err != nil {
-		return response, err
+		return nil, response, err
 	}
-	return response, nil
+	return &runPlanResp, response, nil
 }
