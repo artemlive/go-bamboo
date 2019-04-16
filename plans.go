@@ -39,7 +39,6 @@ type Plan struct {
 	PlanKey   *PlanKey `json:"planKey,omitempty"`
 }
 //Definition of response
-//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
 // if need to expand any information, move all data to separate structs, no need for now
 type PlanInfo struct {
 	Expand      string `json:"expand"`
@@ -90,12 +89,22 @@ type PlanInfo struct {
 	Name    string `json:"name"`
 }
 
+type RunPlanResponse struct {
+	PlanKey        string `json:"planKey"`
+	BuildNumber    int    `json:"buildNumber"`
+	BuildResultKey string `json:"buildResultKey"`
+	TriggerReason  string `json:"triggerReason"`
+	Link           struct {
+		Href string `json:"href"`
+		Rel  string `json:"rel"`
+	} `json:"link"`
+}
+
 // PlanKey holds the plan-key for a plan
 type PlanKey struct {
 	Key string `json:"key,omitempty"`
 }
 
-//http://bamboo.epom.com/rest/api/latest/plan/DEV-TEST?expand=variableContext
 
 func (p *PlanService) PlanVariables(planKey string) (VariableContext, *http.Response, error) {
 	u := fmt.Sprintf("plan/%s%s", planKey, variablesListURL())
@@ -257,35 +266,35 @@ func (p *PlanService) DisablePlan(planKey string) (*http.Response, error) {
 }
 
 // Run plan without variables
-func (p *PlanService) RunPlan(projectKey, planKey string) (*http.Response, error) {
-	return p.runPlan(projectKey, planKey, nil)
+func (p *PlanService) RunPlan(planKey string) (*RunPlanResponse, *http.Response, error) {
+	return p.runPlan(planKey, nil)
 }
 
 // Run plan with variables
-func (p *PlanService) RunPlanCustomized(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
-	return p.runPlan(projectKey, planKey, variables)
+func (p *PlanService) RunPlanCustomized(planKey string, variables map[string]string) (*RunPlanResponse, *http.Response, error) {
+	return p.runPlan(planKey, variables)
 }
 
 // internal method for build plan running, avoid duplicate
-func (p *PlanService) runPlan(projectKey, planKey string, variables map[string]string) (*http.Response, error) {
+func (p *PlanService) runPlan(planKey string, variables map[string]string) (*RunPlanResponse, *http.Response, error) {
 	var u = ""
 	if variables != nil {
 		var varsString = ""
 		for varName, varValue := range variables {
 			varsString += fmt.Sprintf("&bamboo.variable.%s=%s", varName, varValue)
 		}
-		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages&%s", projectKey, planKey, varsString)
+		u = fmt.Sprintf("queue/%s?stage&executeAllStages&%s", planKey, varsString)
 	} else {
-		u = fmt.Sprintf("queue/%s-%s?stage&executeAllStages", projectKey, planKey)
+		u = fmt.Sprintf("queue/%s?stage&executeAllStages", planKey)
 	}
 	request, err := p.client.NewRequest(http.MethodPost, u, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
-	response, err := p.client.Do(request, nil)
+	runPlanResp := RunPlanResponse{}
+	response, err := p.client.Do(request, &runPlanResp)
 	if err != nil {
-		return response, err
+		return nil, response, err
 	}
-	return response, nil
+	return &runPlanResp, response, nil
 }
