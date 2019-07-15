@@ -105,6 +105,33 @@ func (pb *PlanBranchService) ListVCSBranches(planKey string) ([]string, *http.Re
 	return vcsBranches, response, err
 }
 
+//add vcs branch
+func (pb *PlanBranchService) AddBranch(planKey, branchName, vcsBranchName string) (*Branch, *http.Response, error) {
+	var u string
+	if !emptyStrings(planKey, branchName, vcsBranchName) {
+		u = fmt.Sprintf("plan/%s/branch/%s?vcsBranch=%s", planKey, branchName, vcsBranchName)
+	} else {
+		return nil, nil, &simpleError{"Project key and/or branch and/or vcs branch name cannot be empty"}
+	}
+
+	request, err := pb.client.NewRequest(http.MethodPut, u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	branch := Branch{}
+	response, err := pb.client.Do(request, &branch)
+	if err != nil {
+		return nil, response, err
+	}
+
+	if !(response.StatusCode == 200) {
+		return nil, response, &simpleError{fmt.Sprintf("Create returned %d", response.StatusCode)}
+	}
+
+	return &branch, response, nil
+}
+
 // BranchInfo retrieves the information from the given branch name
 func (pb *PlanBranchService) BranchInfo(planKey, branchName string) (*Branch, *http.Response, error) {
 	var u string
